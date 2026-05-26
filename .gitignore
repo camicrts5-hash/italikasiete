@@ -1,0 +1,18 @@
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración con contraseñas
+.env
+config_local.php
+
+# Archivos temporales
+*.log
+*.tmp
+cache/
+logs/
+
+# Archivos de editor
+.vscode/
+.idea/
+*.swp
