@@ -1,40 +1,46 @@
 <?php
 session_start();
+// Control de sesión exigido
 if (!isset($_SESSION['loggedin'])) {
     header('Location: login.php');
     exit();
 }
 include 'config.php';
 
-// CREATE
+// CREATE (Operación de Alta usando 'stock')
 if (isset($_POST['crear'])) {
     $nombre = $_POST['nombre'];
-    $descripcion = $_POST['descripcion'];
     $precio = $_POST['precio'];
-    $cantidad = $_POST['cantidad'];
-    $sql = "INSERT INTO refacciones (nombre, descripcion, precio, cantidad) VALUES ('$nombre', '$descripcion', '$precio', '$cantidad')";
+    $stock = $_POST['stock'];
+    
+    // Se removió el campo descripción que no pertenece a la tabla actual
+    $sql = "INSERT INTO refacciones (nombre, precio, stock) VALUES ('$nombre', '$precio', '$stock')";
     $conn->query($sql);
 }
 
-// DELETE (con confirmación JavaScript)
+// DELETE (Operación de Baja con redirección limpia)
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
     $conn->query("DELETE FROM refacciones WHERE id=$id");
     header('Location: admin.php');
+    exit();
 }
 
-// UPDATE
+// UPDATE (Operación de Modificación corrigiendo el Error 500)
 if (isset($_POST['actualizar'])) {
     $id = $_POST['id'];
     $nombre = $_POST['nombre'];
-    $descripcion = $_POST['descripcion'];
     $precio = $_POST['precio'];
-    $cantidad = $_POST['cantidad'];
-    $sql = "UPDATE refacciones SET nombre='$nombre', descripcion='$descripcion', precio='$precio', cantidad='$cantidad' WHERE id=$id";
+    $stock = $_POST['stock'];
+    
+    // Se unificaron las columnas con la estructura limpia de la base de datos
+    $sql = "UPDATE refacciones SET nombre='$nombre', precio='$precio', stock='$stock' WHERE id=$id";
     $conn->query($sql);
+    header('Location: admin.php');
+    exit();
 }
 
-// READ (mostrar los 50 registros)
+// READ (Consulta de los 50 registros asignados)
 $resultado = $conn->query("SELECT * FROM refacciones LIMIT 50");
 ?>
 
@@ -49,11 +55,13 @@ $resultado = $conn->query("SELECT * FROM refacciones LIMIT 50");
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background: #1d3557; color: white; }
-        .btn { padding: 5px 10px; margin: 2px; text-decoration: none; border-radius: 3px; }
+        .btn { padding: 5px 10px; margin: 2px; text-decoration: none; border-radius: 3px; display: inline-block; }
         .btn-editar { background: #ffc107; color: black; }
         .btn-eliminar { background: #e63946; color: white; }
         .formulario { background: #e9ecef; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        input, textarea { padding: 8px; margin: 5px; width: 200px; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        button { padding: 8px 15px; background: #1d3557; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #457b9d; }
     </style>
 </head>
 <body>
@@ -61,31 +69,27 @@ $resultado = $conn->query("SELECT * FROM refacciones LIMIT 50");
         <h1>🏍️ Gestión de Refacciones Italika</h1>
         <a href="logout.php">Cerrar Sesión</a>
 
-        <!-- FORMULARIO PARA CREAR -->
         <div class="formulario">
             <h3>➕ Agregar Nueva Refacción (CREATE)</h3>
             <form method="post">
-                <input type="text" name="nombre" placeholder="Nombre" required>
-                <input type="text" name="descripcion" placeholder="Descripción">
+                <input type="text" name="nombre" placeholder="Nombre de Refacción" required>
                 <input type="number" step="0.01" name="precio" placeholder="Precio" required>
-                <input type="number" name="cantidad" placeholder="Cantidad" required>
+                <input type="number" name="stock" placeholder="Stock / Cantidad" required>
                 <button type="submit" name="crear">Guardar</button>
             </form>
         </div>
 
-        <!-- TABLA PARA LEER (READ) -->
         <h3>📋 Lista de Productos</h3>
         <table>
             <tr>
-                <th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Cantidad</th><th>Acciones</th>
+                <th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th>
             </tr>
             <?php while($fila = $resultado->fetch_assoc()): ?>
             <tr>
                 <td><?php echo $fila['id']; ?></td>
                 <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
-                <td><?php echo htmlspecialchars($fila['descripcion']); ?></td>
-                <td>$<?php echo $fila['precio']; ?></td>
-                <td><?php echo $fila['cantidad']; ?></td>
+                <td>$<?php echo number_format($fila['precio'], 2); ?></td>
+                <td><?php echo $fila['stock']; ?></td>
                 <td>
                     <a href="?edit=<?php echo $fila['id']; ?>" class="btn btn-editar">Editar</a>
                     <a href="?delete=<?php echo $fila['id']; ?>" class="btn btn-eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta refacción?');">Eliminar</a>
@@ -94,24 +98,26 @@ $resultado = $conn->query("SELECT * FROM refacciones LIMIT 50");
             <?php endwhile; ?>
         </table>
 
-        <!-- FORMULARIO PARA EDITAR (UPDATE) -->
         <?php if (isset($_GET['edit'])): 
             $id_edit = $_GET['edit'];
             $result_edit = $conn->query("SELECT * FROM refacciones WHERE id=$id_edit");
-            $row_edit = $result_edit->fetch_assoc();
+            if ($result_edit && $result_edit->num_rows > 0):
+                $row_edit = $result_edit->fetch_assoc();
         ?>
         <div class="formulario">
             <h3>✏️ Editar Refacción (UPDATE)</h3>
             <form method="post">
                 <input type="hidden" name="id" value="<?php echo $row_edit['id']; ?>">
+                <label>Nombre:</label>
                 <input type="text" name="nombre" value="<?php echo htmlspecialchars($row_edit['nombre']); ?>" required>
-                <input type="text" name="descripcion" value="<?php echo htmlspecialchars($row_edit['descripcion']); ?>">
+                <label>Precio:</label>
                 <input type="number" step="0.01" name="precio" value="<?php echo $row_edit['precio']; ?>" required>
-                <input type="number" name="cantidad" value="<?php echo $row_edit['cantidad']; ?>" required>
+                <label>Stock:</label>
+                <input type="number" name="stock" value="<?php echo $row_edit['stock']; ?>" required>
                 <button type="submit" name="actualizar">Actualizar</button>
             </form>
         </div>
-        <?php endif; ?>
+        <?php endif; endif; ?>
     </div>
 </body>
 </html>
