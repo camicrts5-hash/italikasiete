@@ -18,6 +18,7 @@
     <header>
         <h1>🏍️ Refacciones Italika</h1>
         <p>Piezas originales para tu motocicleta</p>
+        <p>Cambio realizado desde la máquina virtual local - 27/05/2026</p>
     </header>
     <nav>
         <a href="index.php">Inicio</a>
