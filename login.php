@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
     
     // Credenciales específicas del enunciado
-    if ($email == '24160798@itoaxaca.edu.mx' && $password == '24160798TSO') {
+    if ($email == '24160798@itoaxaca.edu.mx' && $password == '24160798ITO') {
         $_SESSION['loggedin'] = true;
         header('Location: admin.php');
         exit();
