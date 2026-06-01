@@ -79,7 +79,7 @@ $resultado = $conn->query("SELECT * FROM refacciones LIMIT 50");
             </form>
         </div>
 
-        <h3>📋 Lista de Productos</h3>
+        <h3>📋Inventario italika</h3>
         <table>
             <tr>
                 <th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th>
