@@ -66,7 +66,7 @@ $resultado = $conn->query("SELECT * FROM refacciones LIMIT 50");
 </head>
 <body>
     <div class="container">
-        <h1>🏍️ Gestión de Refacciones Italika</h1>
+        <h1>🏍️ Gestión de Refacciones Camila</h1>
         <a href="logout.php">Cerrar Sesión</a>
 
         <div class="formulario">
