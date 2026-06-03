@@ -70,7 +70,7 @@ $resultado = $conn->query("SELECT * FROM refacciones LIMIT 50");
         <a href="logout.php">Cerrar Sesión</a>
 
         <div class="formulario">
-            <h3>➕ Agregar Nueva Refacción (CREATE)</h3>
+            <h3>➕ Agregar Nueva Refacción</h3>
             <form method="post">
                 <input type="text" name="nombre" placeholder="Nombre de Refacción" required>
                 <input type="number" step="0.01" name="precio" placeholder="Precio" required>
